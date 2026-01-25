@@ -6,13 +6,22 @@ BET_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "game_id": {"type": "string"},
                     "player_name": {"type": "string"},
                     "stat": {"type": "string"},
                     "line": {"type": "number"},
-                    "confidence": {"type": "string"}  # SAFE | MODERATE
+                    "line_type": {
+                        "type": "string",
+                        "enum": ["floor", "straight"]
+                    },
+                    "confidence": {"type": "string"}
                 },
-                "required": ["game_id", "player_name", "stat", "line", "confidence"]
+                "required": [
+                    "player_name",
+                    "stat",
+                    "line",
+                    "line_type",
+                    "confidence"
+                ]
             }
         },
         "parlays": {
@@ -22,22 +31,33 @@ BET_SCHEMA = {
                 "properties": {
                     "legs": {
                         "type": "array",
+                        "minItems": 3,
                         "items": {
                             "type": "object",
                             "properties": {
-                                "game_id": {"type": "string"},
                                 "player_name": {"type": "string"},
                                 "stat": {"type": "string"},
-                                "line": {"type": "number"}
+                                "line": {"type": "number"},
+                                "line_type": {
+                                    "type": "string",
+                                    "enum": ["floor"]
+                                },
+                                "confidence": {"type": "string"}
                             },
-                            "required": ["game_id", "player_name", "stat", "line"]
+                            "required": [
+                                "player_name",
+                                "stat",
+                                "line",
+                                "line_type",
+                                "confidence"
+                            ]
                         }
-                    },
-                    "type": {"type": "string"}  # 3-leg | 5-leg | 8-leg
+                    }
                 },
-                "required": ["legs", "type"]
+                "required": ["legs"]
             }
         }
+
     },
     "required": ["straight_bets", "parlays"]
 }

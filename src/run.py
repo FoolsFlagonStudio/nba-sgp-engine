@@ -8,20 +8,36 @@ from src.clean.player_last5_clean import clean_player_last5
 from src.model.stat_floors import compute_stat_floors
 from src.model.fanduel_lines import apply_fanduel_lines
 from src.model.group_props_by_game import group_props_by_game
+from src.model.filter_active_slate import filter_props_to_active_slate
+from src.fetch.active_slate import extract_active_team_ids
 from src.ai.generate_bets import generate_bets
+from src.model.expand_props_for_model import expand_props_for_model
 
 load_dotenv(".env", override=True)
 
+# 1. Fetch tonight's games
 games = get_live_games()
-last5 = get_last_5_games_by_team_league(games, use_cache=False)
 
+# 2. Determine active slate
+active_team_ids = extract_active_team_ids(games)
+
+# 3. Build player data
+last5 = get_last_5_games_by_team_league(games, use_cache=False)
 raw = build_player_last5_stats(last5)
 cleaned = clean_player_last5(raw)
+
+# 4. Compute floors + FanDuel lines
 floors = compute_stat_floors(cleaned)
 fd_props = apply_fanduel_lines(floors)
 
-by_game = group_props_by_game(games, fd_props)
+# 5. Filter to active teams only
+fd_props = filter_props_to_active_slate(fd_props, active_team_ids)
 
-bets = generate_bets(by_game)
+# 6. Group by game
+by_game = group_props_by_game(games, fd_props)
+by_game = expand_props_for_model(by_game)
+
+# 7. Generate bets with guardrails
+bets = generate_bets(by_game, active_team_ids)
 
 print(json.dumps(bets, indent=2))

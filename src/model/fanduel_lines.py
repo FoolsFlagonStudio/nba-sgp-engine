@@ -13,35 +13,45 @@ FANDUEL_LADDERS = {
 }
 
 
-def snap_to_ladder(value: float, ladder: list[int]) -> int | None:
-    """
-    Snap DOWN to nearest valid FanDuel ladder value.
-    Returns None if value cannot be snapped.
-    """
+def snap_to_ladder(value: int, ladder: list[int]) -> int | None:
     for step in reversed(ladder):
         if value >= step:
             return step
     return None
 
 
-def apply_fanduel_lines(stat_floors, buffer_pct=0.10):
+def apply_fanduel_lines(stat_floors: Dict[int, Dict[str, Any]], buffer_pct: float = 0.10):
     results = {}
 
     for player_id, data in stat_floors.items():
         props = {}
 
-        for stat, floor_value in data["floors"].items():
+        for stat, sdata in data["stats"].items():
             if stat not in FANDUEL_LADDERS:
                 continue
 
-            # 🔒 hard safety buffer + integer floor
-            adjusted = floor(floor_value * (1 - buffer_pct))
+            ladder = FANDUEL_LADDERS[stat]
 
-            # snap DOWN to FanDuel ladder
-            for step in reversed(FANDUEL_LADDERS[stat]):
-                if adjusted >= step:
-                    props[stat] = step
-                    break
+            def snap(val):
+                adjusted = floor(val * (1 - buffer_pct))
+                return snap_to_ladder(adjusted, ladder)
+
+            floor_line = snap(sdata["floor"])
+            safe_line = snap(sdata["safe_alt"])
+
+            if floor_line is None:
+                continue
+
+            props[stat] = {
+                "floor": {
+                    "line": floor_line,
+                    "confidence": "STRONG_SAFE"
+                },
+                "straight": {
+                    "line": safe_line,
+                    "confidence": "SAFE"
+                } if safe_line and safe_line > floor_line else None
+            }
 
         if props:
             results[player_id] = {

@@ -1,39 +1,29 @@
-import math
-
-
-def compute_stat_floors(cleaned_players: dict) -> dict:
-    """
-    For each player, compute eligible stat floors
-    based strictly on last-5 consistency.
-    """
-
+def compute_stat_floors(cleaned: dict) -> dict:
     result = {}
 
-    for pid, p in cleaned_players.items():
-        floors = {}
+    for pid, p in cleaned.items():
+        result[pid] = {
+            "player_name": p["player_name"],
+            "team_id": p["team_id"],
+            "stats": {}
+        }
 
-        # Points: always eligible
-        floors["points"] = min(p["points"])
+        for stat in ["points", "rebounds", "assists", "threes"]:
+            values = p.get(stat)
+            if not values or len(values) < 5:
+                continue
 
-        # Rebounds
-        if min(p["rebounds"]) > 0:
-            floors["rebounds"] = min(p["rebounds"])
+            sorted_vals = sorted(values)
 
-        # Assists
-        if min(p["assists"]) > 0:
-            floors["assists"] = min(p["assists"])
+            floor_value = sorted_vals[0]      
+            safe_alt = sorted_vals[1]         
+            moderate_alt = sorted_vals[2]    
 
-        # 3PM
-        if min(p["threes"]) > 0:
-            floors["threes"] = min(p["threes"])
-
-        # Player must have at least ONE eligible stat
-        if floors:
-            result[pid] = {
-                "player_name": p["player_name"],
-                "team_id": p["team_id"],
-                "floors": floors,
-                "raw": p,
+            result[pid]["stats"][stat] = {
+                "floor": floor_value,
+                "safe_alt": safe_alt,
+                "moderate_alt": moderate_alt,
+                "values": values
             }
 
     return result

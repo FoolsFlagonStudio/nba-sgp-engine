@@ -1,5 +1,6 @@
 from src.ai.client import get_client
 
+
 def run_decision_engine(prompt: str) -> str:
     client = get_client()
 
@@ -8,7 +9,7 @@ def run_decision_engine(prompt: str) -> str:
         messages=[
             {
                 "role": "system",
-                "content": "You are a constrained betting decision model."
+                "content": "You are a strict, rules-based sports betting decision engine."
             },
             {
                 "role": "user",
