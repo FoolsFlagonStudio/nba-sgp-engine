@@ -2,6 +2,7 @@ from src.ai.prompt_builder import build_prompt
 from src.ai.decision_engine import run_decision_engine
 from src.ai.response_validator import validate_response
 from src.ai.guardrails import validate_players_are_active
+from src.ai.post_process import add_parlay_type
 
 MAX_RETRIES = 1
 
@@ -22,8 +23,9 @@ def generate_bets(by_game: dict, active_team_ids: set[int]) -> dict:
 
         if parsed is None:
             break
-        
+
         if parsed and validate_players_are_active(parsed, active_team_ids):
+            parsed = add_parlay_type(parsed)
             return parsed
 
     return {
