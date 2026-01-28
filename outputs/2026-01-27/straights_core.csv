@@ -1,0 +1,24 @@
+player_id,player,team_id,market,line,confidence,hit_rate_last_5,score,risk
+1631096,Chet Holmgren,1610612760,rebounds,4,5,1.0,55.0,core
+1631096,Chet Holmgren,1610612760,rebounds,6,5,1.0,55.0,core
+1642274,Yves Missi,1610612740,rebounds,4,5,1.0,55.0,core
+1642274,Yves Missi,1610612740,rebounds,6,5,1.0,55.0,core
+1631105,Jalen Duren,1610612765,rebounds,4,5,1.0,55.0,core
+1631105,Jalen Duren,1610612765,rebounds,6,5,1.0,55.0,core
+1642273,Kyshawn George,1610612764,rebounds,4,5,1.0,55.0,core
+1642270,Donovan Clingan,1610612757,rebounds,6,5,1.0,55.0,core
+1642270,Donovan Clingan,1610612757,rebounds,8,5,1.0,55.0,core
+1626157,Karl-Anthony Towns,1610612752,rebounds,4,5,1.0,55.0,core
+1626157,Karl-Anthony Towns,1610612752,rebounds,6,5,1.0,55.0,core
+1629011,Mitchell Robinson,1610612752,rebounds,4,5,1.0,55.0,core
+1629011,Mitchell Robinson,1610612752,rebounds,6,5,1.0,55.0,core
+1628983,Shai Gilgeous-Alexander,1610612760,points,20,5,1.0,55.0,core
+1642273,Kyshawn George,1610612764,assists,4,5,1.0,55.0,core
+1630178,Tyrese Maxey,1610612755,assists,4,5,1.0,55.0,core
+1630178,Tyrese Maxey,1610612755,assists,6,5,1.0,55.0,core
+1642273,Kyshawn George,1610612764,threes,1,5,1.0,55.0,core
+1642273,Kyshawn George,1610612764,threes,2,5,1.0,55.0,core
+1642267,Bub Carrington,1610612764,threes,1,5,1.0,55.0,core
+1642267,Bub Carrington,1610612764,threes,2,5,1.0,55.0,core
+201566,Russell Westbrook,1610612758,threes,1,5,1.0,55.0,core
+201566,Russell Westbrook,1610612758,threes,2,5,1.0,55.0,core

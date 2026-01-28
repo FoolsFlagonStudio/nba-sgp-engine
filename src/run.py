@@ -4,6 +4,7 @@
 import json
 import os
 from dotenv import load_dotenv
+from datetime import date
 
 from src.fetch.games import get_live_games
 from src.fetch.league_index import get_last_5_games_by_team_league
@@ -15,7 +16,11 @@ from src.model.group_props_by_game import group_props_by_game
 from src.model.filter_active_slate import filter_props_to_active_slate
 from src.fetch.active_slate import extract_active_team_ids
 
-from src.model.expand_props_for_model import expand_props_for_model
+from src.generate.straights import generate_straights
+from src.generate.multigame_parlays import generate_multi_game_parlays
+from src.generate.sgp_parlays import generate_sgp_parlays
+
+from src.export.export_results import export_results
 
 load_dotenv(".env", override=True)
 
@@ -54,3 +59,34 @@ print("DEBUG games type:", type(games))
 print("DEBUG games sample:", list(games)[:3])
 
 by_game = group_props_by_game(games, fd_props)
+
+# 7. Generate Bet Menu
+straights_output = generate_straights(by_game, max_total=50)
+
+flat_props = [
+    p
+    for market in straights_output.values()
+    for p in market
+]
+
+mgp_output = generate_multi_game_parlays(flat_props)
+
+sgp_output = generate_sgp_parlays(
+    by_game,
+    sizes=(3, 5),
+    max_per_game=25
+)
+
+engine_output = {
+    "date": str(date.today()),
+    "engine_version": "0.3.0",
+    "generated_at": "...",
+
+    "straights": straights_output,
+    "multi_game_parlays": mgp_output,
+    "sgp": {
+        "by_game": sgp_output
+    }
+}
+
+export_results(engine_output)

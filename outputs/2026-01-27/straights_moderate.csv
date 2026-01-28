@@ -1,0 +1,12 @@
+player_id,player,team_id,market,line,confidence,hit_rate_last_5,score,risk
+1631096,Chet Holmgren,1610612760,rebounds,8,4,0.8,44.0,moderate
+1642273,Kyshawn George,1610612764,rebounds,6,4,0.8,44.0,moderate
+1642270,Donovan Clingan,1610612757,rebounds,10,4,0.8,44.0,moderate
+1642270,Donovan Clingan,1610612757,rebounds,12,4,0.8,44.0,moderate
+1642270,Donovan Clingan,1610612757,rebounds,14,4,0.8,44.0,moderate
+1626157,Karl-Anthony Towns,1610612752,rebounds,8,4,0.8,44.0,moderate
+1629011,Mitchell Robinson,1610612752,rebounds,8,4,0.8,44.0,moderate
+1629011,Mitchell Robinson,1610612752,rebounds,10,4,0.8,44.0,moderate
+1628983,Shai Gilgeous-Alexander,1610612760,points,25,4,0.8,44.0,moderate
+1642273,Kyshawn George,1610612764,assists,6,4,0.8,44.0,moderate
+1642267,Bub Carrington,1610612764,threes,3,4,0.8,44.0,moderate
