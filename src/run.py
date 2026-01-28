@@ -1,4 +1,8 @@
+# NOTE:
+# run.py produces canonical, line-level betting data.
+# Downstream generators must not reshape this structure.
 import json
+import os
 from dotenv import load_dotenv
 
 from src.fetch.games import get_live_games
@@ -10,10 +14,14 @@ from src.model.fanduel_lines import apply_fanduel_lines
 from src.model.group_props_by_game import group_props_by_game
 from src.model.filter_active_slate import filter_props_to_active_slate
 from src.fetch.active_slate import extract_active_team_ids
-from src.ai.generate_bets import generate_bets
+
 from src.model.expand_props_for_model import expand_props_for_model
 
 load_dotenv(".env", override=True)
+
+DEBUG_LINES_ALL = os.getenv("DEBUG_LINES_ALL") == "1"
+DEBUG_LINES_SLATE = os.getenv("DEBUG_LINES_SLATE", "1") == "0"
+
 
 # 1. Fetch tonight's games
 games = get_live_games()
@@ -30,14 +38,19 @@ cleaned = clean_player_last5(raw)
 floors = compute_stat_floors(cleaned)
 fd_props = apply_fanduel_lines(floors)
 
+# DEBUG 1 — raw line generation (optional, dev only)
+if DEBUG_LINES_ALL:
+    print(json.dumps(fd_props, indent=2))
+
 # 5. Filter to active teams only
 fd_props = filter_props_to_active_slate(fd_props, active_team_ids)
 
+# DEBUG 2 — slate-only props (PRIMARY)
+if DEBUG_LINES_SLATE:
+    print(json.dumps(fd_props, indent=2))
+
 # 6. Group by game
+print("DEBUG games type:", type(games))
+print("DEBUG games sample:", list(games)[:3])
+
 by_game = group_props_by_game(games, fd_props)
-by_game = expand_props_for_model(by_game)
-
-# 7. Generate bets with guardrails
-bets = generate_bets(by_game, active_team_ids)
-
-print(json.dumps(bets, indent=2))

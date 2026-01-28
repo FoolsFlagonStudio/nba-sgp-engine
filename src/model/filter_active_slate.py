@@ -1,16 +1,16 @@
+from typing import List, Dict, Any, Set
+
+
 def filter_props_to_active_slate(
-    fd_props: dict,
-    active_team_ids: set[int]
-) -> dict:
+    fd_props: List[Dict[str, Any]],
+    active_team_ids: Set[int]
+) -> List[Dict[str, Any]]:
     """
-    Drops any player props whose team is NOT playing tonight.
+    Drops any props whose team is NOT playing tonight.
+    Operates on flat, line-level props.
     """
-    filtered = {}
-
-    for player_id, pdata in fd_props.items():
-        if pdata["team_id"] not in active_team_ids:
-            continue
-
-        filtered[player_id] = pdata
-
-    return filtered
+    return [
+        prop
+        for prop in fd_props
+        if prop.get("team_id") in active_team_ids
+    ]

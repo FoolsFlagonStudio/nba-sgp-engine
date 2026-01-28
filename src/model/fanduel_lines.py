@@ -1,63 +1,68 @@
 # src/model/fanduel_lines.py
 
+from typing import Dict, Any, List
 from math import floor
-from typing import Dict, Any
 
-
-# FanDuel legal ladders
 FANDUEL_LADDERS = {
-    "points":    [5, 8, 10, 12, 15, 18, 20, 25, 30, 35, 40, 45, 50],
-    "rebounds":  [4, 6, 8, 10, 12, 14, 16],
-    "assists":   [3, 4, 6, 8, 10, 12, 14],
-    "threes":    [1, 2, 3, 4, 5, 6, 7, 8],
+    "points":   [15, 18, 20, 25, 30, 35, 40, 45, 50],
+    "rebounds": [4, 6, 8, 10, 12, 14, 16],
+    "assists":  [3, 4, 6, 8, 10, 12, 14],
+    "threes":   [1, 2, 3, 4, 5, 6, 7, 8],
 }
 
+FLOOR_PCT = 0.85
+MIN_HITS = 3  # keep 3/5+
 
-def snap_to_ladder(value: int, ladder: list[int]) -> int | None:
+
+def snap_to_ladder(value: float, ladder: List[int]) -> int | None:
     for step in reversed(ladder):
         if value >= step:
             return step
     return None
 
 
-def apply_fanduel_lines(stat_floors: Dict[int, Dict[str, Any]], buffer_pct: float = 0.10):
-    results = {}
+def apply_fanduel_lines(cleaned_players: Dict[int, Dict[str, Any]]):
+    """
+    Generates line-level props from cleaned last-5 stats.
+    Returns a flat list of props.
+    """
+    results = []
+    for pid, p in cleaned_players.items():
+        stats = p.get("stats", {})
 
-    for player_id, data in stat_floors.items():
-        props = {}
-
-        for stat, sdata in data["stats"].items():
-            if stat not in FANDUEL_LADDERS:
+        for stat, ladder in FANDUEL_LADDERS.items():
+            sdata = stats.get(stat)
+            if not sdata:
                 continue
 
-            ladder = FANDUEL_LADDERS[stat]
-
-            def snap(val):
-                adjusted = floor(val * (1 - buffer_pct))
-                return snap_to_ladder(adjusted, ladder)
-
-            floor_line = snap(sdata["floor"])
-            safe_line = snap(sdata["safe_alt"])
-
-            if floor_line is None:
+            values = sdata.get("values")
+            if not values:
                 continue
 
-            props[stat] = {
-                "floor": {
-                    "line": floor_line,
-                    "confidence": "STRONG_SAFE"
-                },
-                "straight": {
-                    "line": safe_line,
-                    "confidence": "SAFE"
-                } if safe_line and safe_line > floor_line else None
-            }
+            values = [int(v) for v in values]
 
-        if props:
-            results[player_id] = {
-                "player_name": data["player_name"],
-                "team_id": data["team_id"],
-                "props": props
-            }
+            min_val = min(values)
+            dynamic_floor = snap_to_ladder(min_val * FLOOR_PCT, ladder)
+            if dynamic_floor is None:
+                continue
+
+            for line in ladder:
+                if line < dynamic_floor:
+                    continue
+
+                hits = sum(1 for v in values if v >= line)
+                if hits < MIN_HITS:
+                    continue
+
+                results.append({
+                    "player_id": pid,
+                    "player": p["player_name"],
+                    "team_id": p["team_id"],
+                    "market": stat,
+                    "line": line,
+                    "confidence": hits,
+                    "hit_rate_last_5": hits / 5,
+                })
+
 
     return results
