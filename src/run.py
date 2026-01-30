@@ -19,6 +19,10 @@ from src.generate.straights import generate_straights
 from src.generate.multigame_parlays import generate_multi_game_parlays
 from src.generate.sgp_parlays import generate_sgp_parlays
 from src.export.export_results import export_results
+from src.google.google_auth import get_google_creds
+from src.google.load_and_combine_straights import load_and_combine_straights
+from src.google.write_to_sheets import write_straights_to_sheet
+from src.google.drive_backup import upload_drive_backup
 import logging
 import signal
 import sys
