@@ -1,0 +1,20 @@
+player_id,player,team_id,market,line,confidence,hit_rate_last_5,score,risk
+1627759,Jaylen Brown,1610612738,points,25,3,0.6,33.0,aggressive
+1628378,Donovan Mitchell,1610612739,points,30,3,0.6,33.0,aggressive
+1627734,Domantas Sabonis,1610612758,rebounds,8,3,0.6,33.0,aggressive
+1642270,Donovan Clingan,1610612757,rebounds,16,3,0.6,33.0,aggressive
+1628404,Josh Hart,1610612752,rebounds,8,3,0.6,33.0,aggressive
+1626157,Karl-Anthony Towns,1610612752,rebounds,10,3,0.6,33.0,aggressive
+1631109,Mark Williams,1610612756,rebounds,6,3,0.6,33.0,aggressive
+1629029,Luka Dončić,1610612747,rebounds,8,3,0.6,33.0,aggressive
+1642273,Kyshawn George,1610612764,rebounds,8,3,0.6,33.0,aggressive
+1631094,Paolo Banchero,1610612753,rebounds,8,3,0.6,33.0,aggressive
+1631105,Jalen Duren,1610612765,rebounds,8,3,0.6,33.0,aggressive
+1630573,Sam Hauser,1610612738,threes,3,3,0.6,33.0,aggressive
+1628378,Donovan Mitchell,1610612739,threes,3,3,0.6,33.0,aggressive
+1642267,Bub Carrington,1610612764,threes,3,3,0.6,33.0,aggressive
+1628378,Donovan Mitchell,1610612739,assists,6,3,0.6,33.0,aggressive
+1629029,Luka Dončić,1610612747,assists,10,3,0.6,33.0,aggressive
+1642273,Kyshawn George,1610612764,assists,6,3,0.6,33.0,aggressive
+1630567,Scottie Barnes,1610612761,assists,6,3,0.6,33.0,aggressive
+1642268,Isaiah Collier,1610612762,assists,8,3,0.6,33.0,aggressive

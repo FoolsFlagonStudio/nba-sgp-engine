@@ -1,17 +1,28 @@
+# src/google/load_and_combine_straights.py
 import pandas as pd
+import os
 
-
-def load_and_combine_straights():
+def load_and_combine_straights(run_date: str):
+    base_dir = os.path.join("outputs", run_date)
     dfs = []
 
-    for path, risk in [
-        ("output/straights_core.csv", "core"),
-        ("output/straights_moderate.csv", "moderate"),
-        ("output/straights_aggressive.csv", "aggressive"),
+    for filename, risk in [
+        ("straights_core.csv", "core"),
+        ("straights_moderate.csv", "moderate"),
+        ("straights_aggressive.csv", "aggressive"),
     ]:
+        path = os.path.join(base_dir, filename)
+
+        if not os.path.exists(path):
+            print(f"⚠️ Missing {path}, skipping")
+            continue
+
         df = pd.read_csv(path)
-        df["risk"] = risk  # optional but HIGHLY recommended
+        df["risk"] = risk
+        df["run_date"] = run_date 
         dfs.append(df)
 
-    combined = pd.concat(dfs, ignore_index=True)
-    return combined
+    if not dfs:
+        raise RuntimeError(f"No straights CSVs found for {run_date}")
+
+    return pd.concat(dfs, ignore_index=True)

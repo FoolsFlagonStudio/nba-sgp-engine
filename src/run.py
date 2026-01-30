@@ -22,21 +22,20 @@ from src.export.export_results import export_results
 from src.google.google_auth import get_google_creds
 from src.google.load_and_combine_straights import load_and_combine_straights
 from src.google.write_to_sheets import write_straights_to_sheet
-from src.google.drive_backup import upload_drive_backup
 import logging
 import signal
 import sys
 
+RUN_DATE = date.today().isoformat()
+
 MAX_RUNTIME_SECONDS = 30 * 60
 
-
 def timeout_handler(signum, frame):
-    print("❌ Job exceeded max runtime, exiting")
+    logging.error("❌ Max runtime exceeded — shutting down job")
     sys.exit(1)
 
-
 signal.signal(signal.SIGALRM, timeout_handler)
-signal.alarm(MAX_RUNTIME_SECONDS)  # 5 minutes max
+signal.alarm(MAX_RUNTIME_SECONDS)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -135,3 +134,26 @@ engine_output = {
 }
 print("exporting...")
 export_results(engine_output)
+
+# ==============================
+# GOOGLE OUTPUTS (POST-EXPORT)
+# ==============================
+
+print("Preparing Google outputs")
+
+# 8. Load + combine straights CSVs
+df_straights = load_and_combine_straights(RUN_DATE)
+print(f"Combined straights rows: {len(df_straights)}")
+
+# 9. Auth once
+creds = get_google_creds()
+print("Google credentials loaded")
+
+# 10. Write to Google Sheets (authoritative)
+write_straights_to_sheet(
+    creds=creds,
+    spreadsheet_id=os.environ["STRAIGHTS_SPREADSHEET_ID"],
+    worksheet_name="Straights",
+    df=df_straights,
+)
+print("Google Sheet updated")
