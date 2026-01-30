@@ -1,0 +1,24 @@
+player_id,player,team_id,market,line,confidence,hit_rate_last_5,score,risk
+1630552,Jalen Johnson,1610612737,rebounds,8,4,0.8,44.0,moderate
+1630552,Jalen Johnson,1610612737,rebounds,10,4,0.8,44.0,moderate
+1630552,Jalen Johnson,1610612737,rebounds,12,4,0.8,44.0,moderate
+1630552,Jalen Johnson,1610612737,rebounds,14,4,0.8,44.0,moderate
+1630168,Onyeka Okongwu,1610612737,rebounds,6,4,0.8,44.0,moderate
+1630700,Dyson Daniels,1610612737,rebounds,6,4,0.8,44.0,moderate
+1631109,Mark Williams,1610612756,rebounds,6,4,0.8,44.0,moderate
+202696,Nikola Vučević,1610612741,rebounds,8,4,0.8,44.0,moderate
+203497,Rudy Gobert,1610612750,rebounds,6,4,0.8,44.0,moderate
+1631096,Chet Holmgren,1610612760,rebounds,8,4,0.8,44.0,moderate
+1630230,Naji Marshall,1610612742,rebounds,6,4,0.8,44.0,moderate
+203939,Dwight Powell,1610612742,rebounds,6,4,0.8,44.0,moderate
+1642273,Kyshawn George,1610612764,rebounds,6,4,0.8,44.0,moderate
+1630700,Dyson Daniels,1610612737,assists,6,4,0.8,44.0,moderate
+1630700,Dyson Daniels,1610612737,assists,8,4,0.8,44.0,moderate
+1630578,Alperen Sengun,1610612745,assists,6,4,0.8,44.0,moderate
+1641708,Amen Thompson,1610612745,assists,6,4,0.8,44.0,moderate
+1630163,LaMelo Ball,1610612766,assists,6,4,0.8,44.0,moderate
+1642273,Kyshawn George,1610612764,assists,6,4,0.8,44.0,moderate
+1628978,Donte DiVincenzo,1610612750,threes,3,4,0.8,44.0,moderate
+1642267,Bub Carrington,1610612764,threes,3,4,0.8,44.0,moderate
+201142,Kevin Durant,1610612745,points,20,4,0.8,44.0,moderate
+1628983,Shai Gilgeous-Alexander,1610612760,points,25,4,0.8,44.0,moderate

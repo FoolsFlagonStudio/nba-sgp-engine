@@ -1,6 +1,10 @@
 from itertools import combinations
 from typing import List, Dict, Any
 from collections import Counter
+import logging
+import time
+log = logging.getLogger(__name__)
+
 
 def team_limit_for_size(size: int) -> int:
     if size <= 3:
@@ -88,25 +92,69 @@ def is_valid_multi_game_parlay(
 
 def generate_multi_game_parlays(
     props: List[Dict[str, Any]],
-    sizes=(3, 5, 8),
+    sizes=(3, 5),
     max_per_size=25
 ) -> Dict[str, List[Dict[str, Any]]]:
 
     results = {}
 
+    log.info(
+        "generate_multi_game_parlays: start (%d props, sizes=%s)",
+        len(props),
+        sizes
+    )
+
     for size in sizes:
+        t0 = time.time()
         parlays = []
+        checked = 0
+
+        log.info("Parlay size %d: generating combinations", size)
 
         for combo in combinations(props, size):
+            checked += 1
+
+            # heartbeat every N combos
+            if checked % 5_000 == 0:
+                log.info(
+                    "Size %d: checked %d combos, found %d",
+                    size,
+                    checked,
+                    len(parlays),
+                )
+
             if is_valid_multi_game_parlay(list(combo), size):
                 parlays.append({
                     "size": size,
                     "legs": list(combo),
                 })
 
+                log.info(
+                    "Size %d: accepted parlay %d / %d",
+                    size,
+                    len(parlays),
+                    max_per_size,
+                )
+
             if len(parlays) >= max_per_size:
+                log.info(
+                    "Size %d: reached max_per_size (%d), stopping early",
+                    size,
+                    max_per_size,
+                )
                 break
 
+        elapsed = time.time() - t0
+        log.info(
+            "Parlay size %d complete: %d checked, %d accepted (%.2fs)",
+            size,
+            checked,
+            len(parlays),
+            elapsed,
+        )
+
         results[f"{size}_leg"] = parlays
+
+    log.info("generate_multi_game_parlays: complete")
 
     return results

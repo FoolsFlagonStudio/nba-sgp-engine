@@ -1,11 +1,11 @@
 # NOTE:
 # run.py produces canonical, line-level betting data.
 # Downstream generators must not reshape this structure.
+from collections import Counter
 import json
 import os
 from dotenv import load_dotenv
 from datetime import date
-
 from src.fetch.games import get_live_games
 from src.fetch.league_index import get_last_5_games_by_team_league
 from src.fetch.player_last5_stats import build_player_last5_stats
@@ -15,12 +15,31 @@ from src.model.fanduel_lines import apply_fanduel_lines
 from src.model.group_props_by_game import group_props_by_game
 from src.model.filter_active_slate import filter_props_to_active_slate
 from src.fetch.active_slate import extract_active_team_ids
-
 from src.generate.straights import generate_straights
 from src.generate.multigame_parlays import generate_multi_game_parlays
 from src.generate.sgp_parlays import generate_sgp_parlays
-
 from src.export.export_results import export_results
+import logging
+import signal
+import sys
+
+MAX_RUNTIME_SECONDS = 30 * 60
+
+
+def timeout_handler(signum, frame):
+    print("❌ Job exceeded max runtime, exiting")
+    sys.exit(1)
+
+
+signal.signal(signal.SIGALRM, timeout_handler)
+signal.alarm(MAX_RUNTIME_SECONDS)  # 5 minutes max
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    datefmt="%H:%M:%S"
+)
+
 
 load_dotenv(".env", override=True)
 
@@ -38,6 +57,11 @@ active_team_ids = extract_active_team_ids(games)
 last5 = get_last_5_games_by_team_league(games, use_cache=False)
 raw = build_player_last5_stats(last5)
 cleaned = clean_player_last5(raw)
+cleaned = {
+    pid: p
+    for pid, p in cleaned.items()
+    if p["team_id"] in active_team_ids
+}
 
 # 4. Compute floors + FanDuel lines
 floors = compute_stat_floors(cleaned)
@@ -59,24 +83,41 @@ print("DEBUG games type:", type(games))
 print("DEBUG games sample:", list(games)[:3])
 
 by_game = group_props_by_game(games, fd_props)
+print("STRAIGHTS INPUT STATS")
+print("Games:", len(by_game))
+print(
+    "Total props:",
+    sum(len(g["props"]) for g in by_game.values())
+)
+
+print(
+    "Markets:",
+    Counter(
+        p["market"]
+        for g in by_game.values()
+        for p in g["props"]
+    )
+)
 
 # 7. Generate Bet Menu
-straights_output = generate_straights(by_game, max_total=50)
-
+print("starting straights")
+straights_output = generate_straights(by_game)
+print("straights finished")
 flat_props = [
     p
     for market in straights_output.values()
     for p in market
 ]
-
+print("starting mgp")
 mgp_output = generate_multi_game_parlays(flat_props)
-
+print("mpg finished")
+print("starting sgp")
 sgp_output = generate_sgp_parlays(
     by_game,
     sizes=(3, 5),
     max_per_game=25
 )
-
+print("sgp finished")
 engine_output = {
     "date": str(date.today()),
     "engine_version": "0.3.0",
@@ -88,5 +129,5 @@ engine_output = {
         "by_game": sgp_output
     }
 }
-
+print("exporting...")
 export_results(engine_output)

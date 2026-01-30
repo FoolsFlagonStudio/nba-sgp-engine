@@ -1,8 +1,10 @@
-# src/model/sgp.py
-
 from itertools import combinations
 from collections import Counter
 from typing import List, Dict, Any
+import logging
+import time
+
+log = logging.getLogger(__name__)
 
 
 def team_cap_for_sgp(size: int) -> int:
@@ -51,25 +53,20 @@ def violates_same_player_correlation(legs: list[dict]) -> bool:
 
 
 def validate_sgp(legs: list[dict], size: int) -> bool:
-    # unique players
     if len({l["player_id"] for l in legs}) != size:
         return False
 
-    # team caps
     teams = Counter(l["team_id"] for l in legs)
     if any(v > team_cap_for_sgp(size) for v in teams.values()):
         return False
 
-    # market caps
     markets = Counter(l["market"] for l in legs)
     if any(v > market_cap_for_sgp(size) for v in markets.values()):
         return False
 
-    # correlation rules
     if violates_same_player_correlation(legs):
         return False
 
-    # confidence rules
     return confidence_ok(legs, size)
 
 
@@ -90,26 +87,86 @@ def generate_sgp_parlays(
 
     results = {}
 
-    for game_id, game in game_props.items():
+    log.info(
+        "generate_sgp_parlays: start (%d games, sizes=%s)",
+        len(game_props),
+        sizes
+    )
+
+    for game_idx, (game_id, game) in enumerate(game_props.items(), start=1):
         props = game["props"]
         game_results = {}
 
+        log.info(
+            "SGP game %d / %d: %s (%d props)",
+            game_idx,
+            len(game_props),
+            game_id,
+            len(props),
+        )
+
         for size in sizes:
+            t0 = time.time()
             sgps = []
+            checked = 0
+
+            log.info(
+                "Game %s: generating %d-leg SGPs",
+                game_id,
+                size,
+            )
 
             for combo in combinations(props, size):
+                checked += 1
+
+                # heartbeat every N combos
+                if checked % 2_000 == 0:
+                    log.info(
+                        "Game %s | %d-leg: checked %d combos, found %d",
+                        game_id,
+                        size,
+                        checked,
+                        len(sgps),
+                    )
+
                 if validate_sgp(list(combo), size):
                     sgps.append({
                         "game_id": game_id,
                         "size": size,
-                        "legs": list(combo)
+                        "legs": list(combo),
                     })
 
+                    log.info(
+                        "Game %s | %d-leg: accepted %d / %d",
+                        game_id,
+                        size,
+                        len(sgps),
+                        max_per_game,
+                    )
+
                 if len(sgps) >= max_per_game:
+                    log.info(
+                        "Game %s | %d-leg: reached max_per_game (%d), stopping",
+                        game_id,
+                        size,
+                        max_per_game,
+                    )
                     break
+
+            elapsed = time.time() - t0
+            log.info(
+                "Game %s | %d-leg complete: %d checked, %d accepted (%.2fs)",
+                game_id,
+                size,
+                checked,
+                len(sgps),
+                elapsed,
+            )
 
             game_results[f"{size}_leg"] = sgps
 
         results[game_id] = game_results
+
+    log.info("generate_sgp_parlays: complete")
 
     return results
