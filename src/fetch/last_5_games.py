@@ -10,7 +10,7 @@ from src.fetch.headers import HEADERS
 def get_last_5_game_ids(
     player_id: int,
     season: str = "2025-26",
-    timeout: int = 60
+    timeout: int = 15 # was 60
 ) -> list[str] | None:
     """
     Returns last 5 completed GAME_IDs for a player.

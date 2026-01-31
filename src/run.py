@@ -57,7 +57,27 @@ games = get_live_games()
 active_team_ids = extract_active_team_ids(games)
 
 # 3. Build player data
-last5 = get_last_5_games_by_team_league(games, use_cache=False)
+MAX_NBA_RETRIES = 3
+
+last5 = None
+for attempt in range(1, MAX_NBA_RETRIES + 1):
+    try:
+        logging.info(f"📡 Fetching last-5 games (attempt {attempt})")
+        last5 = get_last_5_games_by_team_league(
+            games,
+            use_cache=False,
+            timeout=15,
+        )
+        break
+    except Exception as e:
+        logging.warning(f"⚠️ NBA API attempt {attempt} failed: {e}")
+        if attempt == MAX_NBA_RETRIES:
+            logging.error("❌ NBA API unavailable after retries")
+            sys.exit(1)
+if last5 is None:
+    logging.error("❌ NBA API returned no data")
+    sys.exit(1)
+
 raw = build_player_last5_stats(last5)
 cleaned = clean_player_last5(raw)
 cleaned = {
