@@ -34,14 +34,25 @@ def timeout_handler(signum, frame):
     logging.error("❌ Max runtime exceeded — shutting down job")
     sys.exit(1)
 
-signal.signal(signal.SIGALRM, timeout_handler)
-signal.alarm(MAX_RUNTIME_SECONDS)
+# signal.signal(signal.SIGALRM, timeout_handler)
+# signal.alarm(MAX_RUNTIME_SECONDS)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     datefmt="%H:%M:%S"
 )
+# LOG_DIR = "logs"
+# os.makedirs(LOG_DIR, exist_ok=True)
+
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s | %(levelname)s | %(message)s",
+#     handlers=[
+#         logging.FileHandler(f"{LOG_DIR}/{RUN_DATE}.log"),
+#         logging.StreamHandler(sys.stdout),
+#     ],
+# )
 
 
 load_dotenv(".env", override=True)
